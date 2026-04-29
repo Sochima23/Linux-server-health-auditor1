@@ -1,4 +1,4 @@
-# 🚀 Linux Server Health Auditor
+#  Linux Server Health Auditor
 
 ![DevOps](https://img.shields.io/badge/DevOps-Automation-blue)
 ![Bash](https://img.shields.io/badge/Bash-Scripting-black)
@@ -8,40 +8,38 @@
 
 ---
 
-## 🧠 Project Overview
-## ⚙️ Automation & Monitoring
+ ---
+
+##  Project Overview
 
 This project implements automated system health monitoring using a Bash script and cron scheduling.
 
-The script collects:
+It monitors:
 - CPU usage
 - Memory usage
 - Disk usage
 
-These metrics are evaluated against thresholds to determine system status:
+These metrics are evaluated against thresholds:
+
 - OK
 - WARNING
 - CRITICAL
 
 ---
 
-### 🔄 Automation (Cron)
+## Automation (Cron)
 
 The script runs automatically every 5 minutes:
-```bash
+
 */5 * * * * /bin/bash health_audit.sh
 
-
----
-
-### 📊 Architecture
-
+## System Architecture
                  ┌──────────────────────────┐
                  │      Cron Scheduler      │
                  │   (runs every 5 mins)    │
                  └──────────┬───────────────┘
                             │
-                            v
+                            ▼
                  ┌──────────────────────────┐
                  │  Bash Health Script      │
                  │ (CPU / MEM / DISK check) │
@@ -49,54 +47,56 @@ The script runs automatically every 5 minutes:
                             │
           ┌──────────────────┴──────────────────┐
           │                                     │
-          v                                     v
+          ▼                                     ▼
 ┌──────────────────────┐            ┌────────────────────────┐
 │  JSON Health Report  │            │ Prometheus Metrics File │
 │  (logs/health.log)   │            │  (metrics.prom)        │
 └──────────────────────┘            └──────────┬─────────────┘
                                                │
-                                               v
+                                               ▼
                               ┌──────────────────────────┐
                               │  Prometheus (Docker)     │
                               │  Scrapes metrics file    │
                               └──────────┬───────────────┘
                                          │
-                                         v
+                                         ▼
                               ┌──────────────────────────┐
-                              │   Monitoring Dashboard    │
-                              │   (http://localhost:9090) │
+                              │ Monitoring Dashboard      │
+                              │ http://localhost:9090    │
                               └──────────────────────────┘
+## Key Features
 
----
+ Automated monitoring using Cron
+ Real-time system metrics collection
+ Threshold-based alerting system (OK / WARNING / CRITICAL)
+ JSON logging for audit trail
+ Prometheus-compatible metrics export
+ Docker-based monitoring deployment
+ Fully local setup (no cloud dependency)
 
-### ⚙️ Key Features
+## How to Run the Project
 
-- 🔄 Automated system monitoring using Cron
-- 📊 Real-time metrics collection (CPU, Memory, Disk)
-- 🚨 Threshold-based alert logic (OK / WARNING / CRITICAL)
-- 📦 Prometheus integration for observability
-- 🐳 Docker-based deployment for portability
-- 💡 Fully local, no cloud cost required
+1. Clone repository
+git clone https://github.com/DevOps-Capstone-Project-Group-4/Linux-server-health-auditor.git
 
----
-
-### ▶️ How to Run
-
-### 1️1 Navigate to project folder
-
-```bash
 cd Linux-server-health-auditor/health-audit-files
 
-###2.Make script executable
+3. Make script executable
 chmod +x health_audit.sh
 
-### 3.Run manually (test)
+4. Run manually (test mode)
 ./health_audit.sh
 
-### 4️ Enable automation (Cron - every 5 mins)
+You should see:
+
+JSON output of system health
+
+Prometheus metrics file generated
+
+4. Enable automation (Cron job)
 crontab -e
 
-###  Start Prometheus (Docker)
+5. Start Prometheus (Docker)
 
 docker run -d \
   --name prometheus \
@@ -105,22 +105,41 @@ docker run -d \
   -v $PWD/prometheus.yml:/etc/prometheus/prometheus.yml \
   prom/prometheus
 
+6. Open Prometheus Dashboard
 
-### 6️ Open Dashboard
+Open in browser:
 
-👉 http://localhost:9090
+http://localhost:9090
 
-Search metrics:
+## Query metrics:
 
 cpu_usage
 memory_usage
 disk_usage
 
-
-###🔁 Restart Guide
-
-If system restarts:
-
+## Restart Guide (after reboot)
 cd ~/Linux-server-health-auditor/health-audit-files
 ./health_audit.sh
 docker start prometheus
+
+## Prometheus Integration
+
+The script exports metrics in Prometheus format:
+
+cpu_usage 12
+memory_usage 45
+disk_usage 70
+
+These are stored in:
+
+metrics.prom
+
+Prometheus scrapes this file at regular intervals.
+
+
+## Status
+
+✔ Fully functional
+✔ Automated
+✔ Containerised monitoring
+✔ Capstone-ready submission
