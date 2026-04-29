@@ -32,11 +32,10 @@ The script runs automatically every 5 minutes:
 ```bash
 */5 * * * * /bin/bash health_audit.sh
 
-
-
 ---
 
-## 📊 Architecture
+### 📊 Architecture
+
                  ┌──────────────────────────┐
                  │      Cron Scheduler      │
                  │   (runs every 5 mins)    │
@@ -70,7 +69,7 @@ The script runs automatically every 5 minutes:
 
 ---
 
-## ⚙️ Key Features
+### ⚙️ Key Features
 
 - 🔄 Automated system monitoring using Cron
 - 📊 Real-time metrics collection (CPU, Memory, Disk)
@@ -81,7 +80,7 @@ The script runs automatically every 5 minutes:
 
 ---
 
-## ▶️ How to Run
+### ▶️ How to Run
 
 ### 1️⃣ Navigate to project folder
 
