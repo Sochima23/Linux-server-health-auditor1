@@ -1,15 +1,9 @@
 #!/bin/bash
-## Define script directory (portable path for group projects)
-SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 
-## Load threshold config safely using absolute path
-CONFIG_FILE="$SCRIPT_DIR/threshold.env"
+## Define the threshold values for CPU, memory, and disk usage (in percentage)
+CONFIG_FILE="./threshold.env"
+[ -f "$CONFIG_FILE" ] && . "$CONFIG_FILE"
 
-if [ -f "$CONFIG_FILE" ]; then
-  source "$CONFIG_FILE"
-else
-  echo "ERROR: threshold.env not found at $CONFIG_FILE"
-fi
 
 # check warning
 command -v df >/dev/null 2>&1 || echo "Warning: df not found"
@@ -73,9 +67,41 @@ check_status() {
   fi
 }
 
+get_processes() {
+  ps -e 2>/dev/null | wc -l
+}
+
+get_network() {
+  timeout 2 ping -c 1 8.8.8.8 >/dev/null 2>&1
+
+  if [ $? -eq 0 ]; then
+    echo "UP"
+  else
+    echo "DOWN"
+  fi
+}
+
+check_port() {
+  port=$1
+
+  if command -v ss >/dev/null 2>&1; then
+    ss -tuln | grep -q ":$port " && echo "OPEN" || echo "CLOSED"
+  else
+    echo "UNKNOWN"
+  fi
+}
+
 cpu_usage=$(get_cpu)
 memory_usage=$(get_memory)
 disk_usage=$(get_disk)
+
+process_count=$(get_processes)
+network_status=$(get_network)
+
+port_22=$(check_port 22)
+port_80=$(check_port 80)
+port_443=$(check_port 443)
+port_9090=$(check_port 9090)
 
 cpu_status=$(check_status "$cpu_usage" "$CPU_WARN" "$CPU_CRIT")
 memory_status=$(check_status "$memory_usage" "$MEM_WARN" "$MEM_CRIT")
@@ -114,17 +140,26 @@ cat <<EOF
     "warning_threshold": $MEM_WARN,
     "critical_threshold": $MEM_CRIT
   },
+
   "disk": {
     "usage": $disk_usage,
     "status": "$disk_status",
     "warning_threshold": $DISK_WARN,
     "critical_threshold": $DISK_CRIT
-  }
-}
-EOF
-#  Prometheus metrics
-METRICS_FILE="$SCRIPT_DIR/metrics.prom"
+  },
 
-echo "cpu_usage ${cpu_usage:-0}" > "$METRICS_FILE"
-echo "memory_usage ${memory_usage:-0}" >> "$METRICS_FILE"
-echo "disk_usage ${disk_usage:-0}" >> "$METRICS_FILE"
+  "processes": {
+    "count": $process_count
+  },
+  "network": {
+    "status": "$network_status"
+  },
+
+  "ports": {
+    "22": "$port_22",
+    "80": "$port_80",
+    "443": "$port_443",
+    "9090": "$port_9090"
+  }
+}  
+EOF
